@@ -1,0 +1,8 @@
+"0","table2<- hipoxia_sum %>%"
+"0","  select(type_surg,prop_female,prop_smoking, prop_diabetes, prop_hyper, prop_cad) %>%"
+"0","  kbl(digits = 2,"
+"0","      caption = ""Medidas de Frequência Relativa"") %>%"
+"0","  kable_classic(full_width = F, "
+"0","                html_font = ""Calibri"") "
+"0",""
+"0","table2"

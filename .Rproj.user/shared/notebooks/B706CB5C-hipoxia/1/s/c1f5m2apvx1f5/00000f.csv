@@ -1,0 +1,5 @@
+"0","hipoxia <- hipoxia %>% mutate(type_surg=recode(type_surg,"
+"0","                         '1' = ""gastroenterostomy"", '2'=""gastric restrictive procedure"", '3'=""gastroplasty"", '4'=""removal of gastric restrictive "
+"0","device"""
+"0","                         ))"
+"0",""

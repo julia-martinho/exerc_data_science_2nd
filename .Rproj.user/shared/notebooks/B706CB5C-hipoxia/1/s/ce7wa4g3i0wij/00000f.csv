@@ -1,0 +1,2 @@
+"0","#hipoxia_sum_all <- hipoxia %>% group_by(type_surg) %>%"
+"0","  #summarise(cases=n())"

@@ -1,0 +1,14 @@
+"0","install.packages(""kableExtra"")"
+"1","Installing kableExtra [1.3.4] ...
+"
+"1","	OK [linked cache]
+"
+"0","library(kableExtra)"
+"0",""
+"0","table1<- hipoxia_sum_wide %>%"
+"0","  kbl(digits = 2,"
+"0","      caption = ""Medidas de Frequência Absoluta"") %>%"
+"0","  kable_classic(full_width = F, "
+"0","                html_font = ""Calibri"")"
+"0",""
+"0","table1"

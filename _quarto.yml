@@ -1,0 +1,12 @@
+project:
+  output-dir: outputs/documents
+
+editor: visual
+  
+format:
+  html:
+    smooth-scroll: true
+    self-contained: true
+    toc: true
+    toc-location: left
+

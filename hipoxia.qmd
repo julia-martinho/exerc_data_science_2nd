@@ -1,0 +1,292 @@
+---
+title: "hipoxia"
+subtitle: "Breve Análise de um Dataset"
+author: "Júlia Martinho"
+date: today
+date-format: long
+format:
+  html:
+    smooth-scroll: true
+    self-contained: true
+    toc: true
+    toc-location: left
+theme: cosmo
+smooth-scroll: true
+execute:
+  warning: false
+project:
+  output-dir: outputs/documents
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse    = TRUE,
+  warning     = FALSE, # Whether to display warnings
+  message     = FALSE, # Whether to display messages
+  echo        = TRUE,  # In this case we want to see the code 
+  eval        = TRUE   # Whether to evaluate the code and include its results
+  )
+```
+
+```{r}
+rm(list = ls(all.names = TRUE)) #will clear all objects includes hidden objects.
+
+```
+
+```{r}
+set.seed(123)
+
+```
+
+```{r}
+#install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+#install.packages("readxl", repos = "http://cran.us.r-project.org")
+#install.packages("lubridate", repos = "http://cran.us.r-project.org")
+
+library(tidyverse)
+library(readxl)
+library(lubridate)
+```
+
+```{r}
+hipoxia <- read_excel("datasets/hypoxia.xlsx")
+```
+
+```{r}
+#install.packages("janitor")
+hipoxia <- janitor::clean_names(hipoxia)
+```
+
+```{r}
+hipoxia <- hipoxia %>% mutate(type_surg=recode(type_surg,
+                         '1' = "gastroenterostomy", '2'="gastric restrictive procedure", '3'="gastroplasty", '4'="removal of gastric restrictive 
+device"
+                         ))
+
+```
+
+```{r}
+hipoxia_sum <- hipoxia %>%  group_by(type_surg) %>%
+  summarise(prop_female=mean(female, na.rm = TRUE),
+            prop_smoking=mean(smoking,na.rm=TRUE),
+            prop_diabetes=mean(diabetes,na.rm=TRUE),
+            prop_hyper=mean(hyper, na.rm=TRUE),
+            prop_cad=mean(cad, na.rm=TRUE),
+            prop_preop_med=mean(preop_anti_hyper_med, na.rm=TRUE),
+            prop_cpap=mean(cpap, na.rm=TRUE),
+            mean_age=mean(age,na.rm=TRUE),
+            mean_bmi=mean(bmi,na.rm=TRUE),
+            mean_sleeptime=mean(sleeptime,na.rm=TRUE),
+            mean_surg_dur=mean(duration_of_surg, na.rm=TRUE))
+```
+
+```{r}
+#hipoxia_sum_all <- hipoxia %>% group_by(type_surg) %>%
+  #summarise(cases=n())
+```
+
+#Variáveis em Análise
+```{r}
+#lista
+```
+
+##Nota
+
+###Cálculo do Índice de Apneia-Hipopneia (AHI)
+$$ AHI = \frac{\sum eventos apneia + \sum eventos hipopneia} {\beta_{13} INT_t + \beta_{14} TIME*INT_t + log(POP_t) + \epsilon_t}$$
+###Utilização do CPAP
+![Utilização do CPAP](images/cpap-apneia-1280x720.jpg "Utilização CPAP")
+
+```{r}
+#tabela 1: freq absoluta, relativa e médias
+hipoxia_sum_wide <- hipoxia %>% 
+  select(type_surg,female,race,smoking,diabetes,hyper,cad,preop_anti_hyper_med,cpap,sleeptime) %>% 
+  group_by(type_surg) %>%
+  summarise(all_cases=n(),
+            freq_female=sum(female), freq_male=sum(!female),
+            #freq_white=sum(race=2), freq_black=sum(race=1), freq_other=sum(race=3),
+            freq_smoking=sum(smoking),
+            freq_diabetes=sum(diabetes),
+            freq_hyper=sum(hyper),
+            freq_cad=sum(cad),
+            freq_preop_med=sum(preop_anti_hyper_med),
+            freq_cpap=sum(cpap),
+            mean_sleeptime=mean(sleeptime,na.rm=TRUE))
+```
+
+A amostra consiste em `r hd_sim1` doentes, com as características que se seguem na tabela.
+
+```{r}
+#install.packages("table1")
+library(table1)
+
+t1<- table1(~ age +
+        factor(female) + 
+        factor(race) + 
+         bmi +
+         sleeptime +
+          min_sao2 +
+          factor(ahi) +
+          smoking +
+          diabetes +
+          hyper +
+          cad +
+          preop_anti_hyper_med +
+          cpap | 
+         type_surg, 
+       data=hipoxia,
+      # footnote = "Source: MLData R",
+       caption = "Variáveis Descritivas por Tipo de Cirurgia"
+       )
+
+t1
+```
+
+
+```{r}
+#install.packages("kableExtra")
+library(kableExtra)
+
+table1<- hipoxia_sum_wide %>%
+  kbl(digits = 2,
+      caption = "Medidas de Frequência Absoluta") %>%
+  kable_classic(full_width = F, 
+                html_font = "Calibri")
+
+table1
+```
+
+```{r}
+table2<- hipoxia_sum %>%
+  select(type_surg,prop_female,prop_smoking, prop_diabetes, prop_hyper, prop_cad) %>%
+  kbl(digits = 2,
+      caption = "Medidas de Frequência Relativa") %>%
+  kable_classic(full_width = F, 
+                html_font = "Calibri") 
+
+table2
+```
+
+
+#Box Plot: Idade e Tipo de Cirurgia
+```{r}
+hipoxia <- hipoxia %>% mutate(female_cat=recode(female,
+                         '1' = "female", '0'="male"))
+
+age1<- ggplot(data= hipoxia, 
+            aes(x =female_cat, y = age)) +
+  geom_boxplot(outlier.shape = NA) +
+  facet_wrap(~type_surg) + 
+  labs(title = "Idade dos Doentes por Tipo de Cirurgia e Sexo",
+         y = "Idade",
+         x = "Tipo de Cirurgia")
+age1
+```
+
+#BMI por Tipo de Cirurgia
+```{r}
+
+bmi1<- ggplot(data= hipoxia, 
+            aes(x = type_surg, y = bmi)) +
+  geom_boxplot(outlier.shape = NA, 
+               fill = "pink", 
+               colour = "black") +
+  ylim(30,70) + 
+  labs(title = "Índice de Massa Corporal por Tipo de Cirurgia",
+         y = "Índice de Massa Corporal",
+         x = "Tipo de Cirurgia") + 
+        scale_x_discrete(labels=c("gastric restrictive procedure" = "Gastric Restrictive Procedure", "gastroenterostomy" = "Gastroenterostomy", "gastroplasty" = "Gastroplasty", "removal of gastric restrictive  device" = "Removal of Gastric Restrictive Device")) +
+  theme_minimal()
+bmi1
+```
+
+#Scatter Plot
+```{r}
+#gráfico dispersão
+#install.packages("ggthemes")
+library(ggthemes)
+
+scatter1 <- ggplot(data = hipoxia, 
+       aes(x=duration_of_surg, y=mac)) + 
+  geom_point(alpha=0.5) +
+  labs(title = "Duração da Cirurgia e Quantidade de Gás Anestésico",
+         y = "Gás Anestésico (horas MAC)",
+         x = "Duração da Cirurgia (h)") +
+  theme_clean()
+
+scatter1
+
+```
+
+#Gráfico de Barras
+```{r}
+#tipo de cirurgia + indice apneia com y=map
+bar1<-  ggplot( data = hipoxia_sum_wide,
+            aes(x = type_surg, 
+                y = freq_hyper)
+            ) +
+  geom_bar(position="dodge", 
+           stat="identity"
+           ) +
+  
+    scale_fill_manual(values=c("#fee0d2","#fc9272")) +
+  
+  labs(title = "Número de Hipertensos por Tipo de Cirurgia",
+         y = "Número de Hipertensos",
+         x = "Tipo de Cirurgia") +
+  theme_minimal() +
+  theme(legend.position="bottom")
+
+bar1
+```
+
+#Modelo de Regressão
+```{r}
+#7. Devem utilizar um modelo de regressao para avaliar se ha diferencas entre o valor de BMI por tipo de cirurgia ajustado pra sexo e idade 
+#	Outcome: BMI
+#	Variável explicativa: BMI
+#	Ajustar: Sexo e Idade
+
+model1 <- lm(bmi ~ 
+               as.factor(type_surg)+
+               as.factor(female)+
+               age, 
+             data= hipoxia)
+
+install.packages("broom")
+library(broom)
+model1_tidy <- tidy(model1, conf.int = TRUE)
+
+table_model1<- model1_tidy %>%
+  kbl(digits = 3,
+      caption = "") %>%
+  kable_classic(full_width = F, 
+                html_font = "Calibri")
+
+table_model1
+
+```
+```{r}
+p_model1<- ggplot(hipoxia, 
+       aes(x=bmi, 
+           y=type_surg, 
+           colour=as.factor(female))
+       )+ 
+  
+  geom_bar(position="stack", 
+           stat="identity"
+             ) +
+  
+    scale_colour_discrete(labels=c('Male', 'Female')) +
+  
+    labs(title = "Sexo e IMC",
+         subtitle = "Por Tipo de Cirurgia",
+         y = "Cirurgia",
+         x = "IMC", 
+         caption = "Fonte: ML datasets",
+       colour="") +
+   theme_minimal() +
+  theme(legend.position="bottom")
+
+p_model1
+```

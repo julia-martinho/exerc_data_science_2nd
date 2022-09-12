@@ -1,0 +1,6 @@
+"0","install.packages(""janitor"")"
+"1","Installing janitor [2.1.0] ...
+"
+"1","	OK [linked cache]
+"
+"0","hipoxia <- janitor::clean_names(hipoxia)"

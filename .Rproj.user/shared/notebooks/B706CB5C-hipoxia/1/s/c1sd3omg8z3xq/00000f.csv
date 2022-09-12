@@ -1,0 +1,9 @@
+"0","model1_logit <- glm(heart_disease ~  age+ "
+"0","                      as.factor(sex)+ "
+"0","                      relevel(factor(resting_ecg), ref = ""Normal"")+"
+"0","                      resting_bp+"
+"0","                      cholesterol, "
+"0","                    family=""binomial"", "
+"0","                    data=hd)"
+"2","Error in is.data.frame(data) : object 'hd' not found
+"

@@ -1,0 +1,18 @@
+"0","#gráfico dispersão"
+"0","install.packages(""ggthemes"")"
+"1","Installing ggthemes [4.2.4] ...
+"
+"1","	OK [linked cache]
+"
+"0","library(ggthemes)"
+"0",""
+"0","scatter1 <- ggplot(data = hipoxia, "
+"0","       aes(x=duration_of_surg, y=mac)) + "
+"0","  geom_point(alpha=0.5) +"
+"0","  labs(title = ""Duração da Cirurgia e Quantidade de Gás Anestésico"","
+"0","         y = ""Gás Anestésico (horas MAC)"","
+"0","         x = ""Duração da Cirurgia (h)"") +"
+"0","  theme_clean()"
+"0",""
+"0","scatter1"
+"0",""
